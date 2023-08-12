@@ -31,9 +31,10 @@
       ans~store_uint(((char + shift - 65) % 26) + 65, 8);
     } if (lower_case?) {
       ans~store_uint(((char + shift - 97) % 26) + 97, 8);
-    } if (~ upper_case? & ~ lower_case?){
-      ans~store_uint(char, 8);  
     }
+    ;; if (~ upper_case? & ~ lower_case?){
+    ;;   ans~store_uint(char, 8);  
+    ;; }
   }
 
   return ans.end_cell();

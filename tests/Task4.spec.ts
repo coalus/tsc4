@@ -1,5 +1,5 @@
 import { Blockchain, SandboxContract } from '@ton-community/sandbox';
-import { Cell, toNano } from 'ton-core';
+import { beginCell, Cell, toNano } from 'ton-core';
 import { Task4 } from '../wrappers/Task4';
 import '@ton-community/test-utils';
 import { compile } from '@ton-community/blueprint';
@@ -32,6 +32,11 @@ describe('Task4', () => {
     });
 
     it('should deploy', async () => {
+        const text = beginCell();
+        text.storeUint(0, 32);
+        text.storeStringTail("dDdCVG;&&&&----0");
+        let res = await blockchain.runGetMethod(task4.address, 'caesar_cipher_decrypt', [{type: 'int', value: 3n}, {type: 'cell', cell: text.endCell()}]);
+        expect(res.stackReader.readString().slice(4)).toEqual("aAaZSD;&&&&----0")
         // the check is done inside beforeEach
         // blockchain and task4 are ready to use
     });
