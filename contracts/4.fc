@@ -25,8 +25,8 @@
       msg = msg~load_ref().begin_parse();
     }
     int char = msg~load_uint(8);
-    int upper_case? = ((65 < char) | (char == 65)) & ((char < 90) | (char == 90));
-    int lower_case? = ((97 < char) | (char == 97)) & ((char < 122) | (char == 122));
+    int upper_case? = (64 < char) & (char < 91);
+    int lower_case? = (96 < char) & (char < 123);
     if (upper_case?) {
       ans~store_uint(((char + shift - 65) % 26) + 65, 8);
     } if (lower_case?) {
