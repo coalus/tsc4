@@ -28,9 +28,9 @@
     int upper_case? = (64 < char) & (char < 91);
     int lower_case? = (96 < char) & (char < 123);
     if (upper_case?) {
-      char = ((char + shift - 65) % 26) + 65;
+      char = ((char + (shift % 26) - 65) % 26) + 65;
     } if (lower_case?) {
-      char = ((char + shift - 97) % 26) + 97;
+      char = ((char + (shift % 26) - 97) % 26) + 97;
     }
     ans~store_uint(char, 8); 
   }
