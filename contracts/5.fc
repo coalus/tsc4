@@ -24,13 +24,15 @@
   }
 
   int k = 0;
-  int a = fib(k);
-  int b = fib(k + 1);
   if (n % 2) {
     k = (n - 1) / 2;
+    int a = fib(k);
+    int b = fib(k + 1);
     return a * a + b * b;
   } else {
     k = n / 2;
+    int a = fib(k);
+    int b = fib(k + 1);
     return a * (2 * b - a);
   }
 }
