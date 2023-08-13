@@ -34,5 +34,9 @@ describe('Task5', () => {
     it('should deploy', async () => {
         // the check is done inside beforeEach
         // blockchain and task5 are ready to use
+        const res = await blockchain.runGetMethod(task5.address, 'fibonacci_sequence', [{type: 'int', value: 1n}, {type: 'int', value: 3n}])
+        console.log(res.gasUsed)
     });
 });
+
+// 3854
