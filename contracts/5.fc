@@ -24,7 +24,7 @@
   }
 
   int k = 0;
-  if (n % 2) {
+  if ((n % 2) != 0) {
     k = (n - 1) / 2;
     int a = fib(k);
     int b = fib(k + 1);

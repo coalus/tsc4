@@ -34,7 +34,7 @@ describe('Task5', () => {
     it('should deploy', async () => {
         // the check is done inside beforeEach
         // blockchain and task5 are ready to use
-        const res = await blockchain.runGetMethod(task5.address, 'fibonacci_sequence', [{type: 'int', value: 1n}, {type: 'int', value: 3n}])
+        const res = await blockchain.runGetMethod(task5.address, 'fibonacci_sequence', [{type: 'int', value: 1n}, {type: 'int', value: 5n}])
         console.log(res.stackReader.readTuple())
         console.log(res.gasUsed)
     });
