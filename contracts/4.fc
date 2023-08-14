@@ -13,23 +13,17 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
 }
 
 
-(cell) pack_chars(tuple chars, cell prev_cell){
-  builder c = begin_cell();
-
-  while (~ is_null?(chars)) {
-    if (c.builder_bits() + 8 > 1023) {
-      return pack_chars(chars, c.end_cell());
-    }
-    int char = chars~pop_back();
-    c~store_uint(char, 8);
+(cell) join_cells(tuple cells, cell prev_cell){
+  while (~ is_null?(cells)) {
+    builder a = cells~pop_back();
+    a.store_ref(prev_cell);
+    return join_cells(cells, a.end_cell());
   }
-  if (~ prev_cell.begin_parse().slice_empty?()) {
-    return c.store_ref(prev_cell).end_cell();
-  }
-  return c.end_cell();
+  return prev_cell;
 }
 
-(tuple, builder) c(tuple chars, slice msg, int shift, builder ans) {
+(tuple) pack_cells(slice msg, int shift, builder ans) {
+  tuple cells = null();
   while (~ msg.slice_empty?()) {
     if (msg.slice_data_empty?()) {
       msg = msg~load_ref().begin_parse();
@@ -45,12 +39,15 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
     if (~ (ans.builder_bits() + 8 > 1023)) {
       ans~store_uint(char, 8);
     } else {
-      (chars, ans) = c(chars, msg, shift, ans);
-      chars~push_back(char);
-      return (chars, ans);
+      cells~push_back(ans);
+      ans = begin_cell();
+      ans~store_uint(char, 8);
     }
   }
-  return (chars, ans);
+  if (is_null?(cells)) {
+    cells~push_back(ans);
+  } 
+  return cells;
 }
 
 (cell) cipher(int decrypt?, cell text, int shift) {
@@ -63,16 +60,12 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
   slice msg = text.begin_parse();
   msg~skip_bits(32);
 
-  tuple chars = null();
   builder ans = begin_cell();
   ans~store_uint(0, 32);
 
-  (tuple ch, ans) = c(null(), msg, shift, ans);
-  cell chars = pack_chars(ch, begin_cell().end_cell());
-  if (chars.begin_parse().slice_empty?()) {
-    return ans.end_cell();
-  } 
-  return ans.store_ref(chars).end_cell();
+  tuple cells = pack_cells(msg, shift, ans);
+  cell last_cell = cells~pop_back().end_cell();
+  return join_cells(cells, last_cell);
 }
 
   ;; testable
