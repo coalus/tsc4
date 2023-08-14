@@ -19,22 +19,11 @@
 (int) fib(int n) {
   if (n == 0) {
     return 0;
-  } if (n <= 2) {
+  }
+  if (n == 1) {
     return 1;
   }
-
-  int k = 0;
-  if ((n % 2) != 0) {
-    k = (n - 1) / 2;
-    int a = fib(k);
-    int b = fib(k + 1);
-    return a * a + b * b;
-  } else {
-    k = n / 2;
-    int a = fib(k);
-    int b = fib(k + 1);
-    return a * (2 * b - a);
-  }
+  return fib(n-1) + fib(n-2);
 }
 
 ;; testable
