@@ -29,7 +29,7 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
   return c.end_cell();
 }
 
-(tuple) c(tuple chars, slice msg, int shift) {
+(tuple, builder) c(tuple chars, slice msg, int shift, builder ans) {
   while (~ msg.slice_empty?()) {
     if (msg.slice_data_empty?()) {
       msg = msg~load_ref().begin_parse();
@@ -42,14 +42,21 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
     } if (lower_case?) {
       char = ((char + (shift % 26) - 97) % 26) + 97;
     }
-    chars = c(chars, msg, shift);
-    chars~push_back(char);
-    return chars;
+    if (~ (ans.builder_bits() + 8 > 1023)) {
+      ans~store_uint(char, 8);
+    } else {
+      (chars, ans) = c(chars, msg, shift, ans);
+      chars~push_back(char);
+      return (chars, ans);
+    }
   }
-  return chars;
+  return (chars, ans);
 }
 
 (cell) cipher(int decrypt?, cell text, int shift) {
+  if (shift == 0) {
+    return text;
+  }
   if (decrypt?) {
     shift = 26 - shift;
   }
@@ -58,10 +65,13 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
 
   tuple chars = null();
   builder ans = begin_cell();
-
   ans~store_uint(0, 32);
-  tuple ch = c(null(), msg, shift);
+
+  (tuple ch, ans) = c(null(), msg, shift, ans);
   cell chars = pack_chars(ch, begin_cell().end_cell());
+  if (chars.begin_parse().slice_empty?()) {
+    return ans.end_cell();
+  } 
   return ans.store_ref(chars).end_cell();
 }
 
