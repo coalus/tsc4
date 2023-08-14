@@ -32,7 +32,7 @@
   if (n == 0) {
     res~tpush(0);
   }
-  if (n == 1) {
+  if ((n == 1) | ((n == 0) & (k > 1))) {
     res~tpush(1);
   }
 
