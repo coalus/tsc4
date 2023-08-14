@@ -13,25 +13,37 @@
   1923063428480944139667114773918309212080528]
 -}
 
-() recv_internal() {
-}
+(int) tlen(tuple t) asm "TLEN";
 
-(int) fib(int n) {
-  if (n == 0) {
-    return 0;
-  }
-  if (n == 1) {
-    return 1;
-  }
-  return fib(n - 1) + fib(n - 2);
+() recv_internal() {
 }
 
 ;; testable
 (tuple) fibonacci_sequence(int n, int k) method_id {
+  if (k == 0) {
+    return empty_tuple();
+  }
   tuple res = empty_tuple();
-  repeat (k) {
-    res~tpush(fib(n));
-    n += 1;
+  int a = 0;
+  int b = 1;
+  int f = 0;
+  int i = 2;
+  
+  if (n == 0) {
+    res~tpush(0);
+  }
+  if (n == 1) {
+    res~tpush(1);
+  }
+
+  while (res.tlen() < k) {
+    f = a + b;
+    a = b;
+    b = f;
+    if ((n < i) | (n == i)) {
+      res~tpush(f);
+    }
+    i += 1;
   }
   return res;
 }
