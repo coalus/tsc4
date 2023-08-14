@@ -16,7 +16,7 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
 (cell) join_cells(tuple cells, cell prev_cell){
   while (~ is_null?(cells)) {
     builder a = cells~pop_back();
-    a.store_ref(prev_cell);
+    a = a.store_ref(prev_cell);
     return join_cells(cells, a.end_cell());
   }
   return prev_cell;
@@ -44,9 +44,9 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
       ans~store_uint(char, 8);
     }
   }
-  if (is_null?(cells)) {
+  if (~ ans.end_cell().begin_parse().slice_empty?()) {
     cells~push_back(ans);
-  } 
+  }
   return cells;
 }
 
