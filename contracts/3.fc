@@ -89,6 +89,7 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
   tuple flag_v = i2t(flag);
   tuple res_bits = null();
   tuple value_t = i2t(value).reverse_tuple();
+  ;; ~dump(1212);
   while (~ is_null?(bits)) {
     int bit = bits~pop_back();
     if (bit == flag_v.at(0)) {
@@ -96,16 +97,20 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
       int i = 1;
       int counter = 1;
       while (i < flag_v.tlen()) {
+        if (~ is_null?(copy)) {
           int cbit = copy~pop_back();
           int fbit = flag_v.at(i);
           if (cbit == fbit) {
             counter += 1;
           }
-          i += 1;
+        }
+        i += 1;
       }
       if (counter == flag_v.tlen()) {
         repeat (flag_v.tlen() - 1) {
-          bits~pop_back();
+          if (~ is_null?(bits)) {
+            bits~pop_back();
+          }
         }
         tuple c = value_t;
         int i = c.tlen() - 1;
@@ -120,6 +125,7 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
       res_bits~push_back(bit);
     }
   }
+  ;; ~dump(3232);
   cell ans = pack_bits(res_bits);
   return ans;
 }
