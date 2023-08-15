@@ -82,14 +82,17 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
       int a = current_slice~load_uint(1);
       bits~push_back(a);
     }
-    if (~ current_slice.slice_empty?()) {
+    if (current_slice.slice_refs()) {
       current_slice = current_slice~load_ref().begin_parse();
     }
   }     
   tuple flag_v = i2t(flag);
   tuple res_bits = null();
-  tuple value_t = i2t(value).reverse_tuple();
-  ;; ~dump(1212);
+  tuple value_t = i2t(value);
+  ;; ~dump(flag_v); ;; [0 0 1 0 1]
+  ;; ~dump(value_t); ;; [1 0]
+  ;; ~dump(bits); ;; [1 0 0 1 0 1]
+  ;; ;; [1 ]
   while (~ is_null?(bits)) {
     int bit = bits~pop_back();
     if (bit == flag_v.at(0)) {
@@ -105,7 +108,8 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
           }
         }
         i += 1;
-      }
+      };; 1
+       ;; 10
       if (counter == flag_v.tlen()) {
         repeat (flag_v.tlen() - 1) {
           if (~ is_null?(bits)) {
@@ -113,10 +117,10 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
           }
         }
         tuple c = value_t;
-        int i = c.tlen() - 1;
-        while (i > -1) {
+        int i = 0;
+        while (i < c.tlen()) {
           res_bits~push_back(c.at(i));
-          i -= 1;
+          i += 1;
         }
       } else {
         res_bits~push_back(bit);
