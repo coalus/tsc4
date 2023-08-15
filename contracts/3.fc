@@ -38,6 +38,7 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
         prev_cell = ans.store_ref(prev_cell).end_cell();
       }
       ans = begin_cell();
+      ans~store_uint(bits~pop_back(), 1);
     }
   }
   if (~ prev_cell.begin_parse().slice_empty?()) {
@@ -84,8 +85,7 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
     if (~ current_slice.slice_empty?()) {
       current_slice = current_slice~load_ref().begin_parse();
     }
-  }
-     
+  }     
   tuple flag_v = i2t(flag);
   tuple res_bits = null();
   tuple value_t = i2t(value).reverse_tuple();

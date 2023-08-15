@@ -32,13 +32,19 @@ describe('Task3', () => {
     });
 
     it('should deploy', async () => {
+        let b = 0b11110001000000100000111010110011111001110011000;
         let c = beginCell()
-        c.storeRef(beginCell().storeRef(beginCell().storeUint(0b1100, 4)))
+        console.log(b.toString());
+        c.storeRef(beginCell().storeRef(beginCell().storeUint(b, 47).storeRef(beginCell().storeUint(b, 47).endCell())))
+        console.log(c);
         const res = await blockchain.runGetMethod(task3.address, 'find_and_replace', [{type: 'int', value: 10n}, {type: 'int', value: 1n}, {type: 'cell', cell: c.endCell()}]);
+        console.log(res.gasUsed);
         const a = res.stackReader.readCell().beginParse();
         console.log(a); 
+        let i = '';
         while (a.remainingBits != 0) {
-            console.log(Number(a.loadBit()));
+            i += Number(a.loadBit()).toString();
         }
+        console.log(i);
     });
 });
