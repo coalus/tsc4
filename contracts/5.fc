@@ -13,8 +13,6 @@
   1923063428480944139667114773918309212080528]
 -}
 
-(int) tlen(tuple t) asm "TLEN";
-
 () recv_internal() {
 }
 
@@ -36,7 +34,7 @@
     res~tpush(1);
   }
 
-  while (res.tlen() < k) {
+  while (i < n + k) {
     f = a + b;
     a = b;
     b = f;
