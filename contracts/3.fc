@@ -16,11 +16,111 @@
 
 -}
 
+(int) ubitsize (int a) asm "UBITSIZE";
+(int) tlen (tuple t) asm "TLEN";
+forall X -> int is_null? (X x) asm "ISNULL";
+forall X -> (tuple, ()) push_back (tuple tail, X head) asm "CONS";
+forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
+
 () recv_internal() {
+}
+
+(cell) pack_bits(tuple bits) {
+  builder ans = begin_cell();
+  cell prev_cell = begin_cell().end_cell();
+  while (~ is_null?(bits)) {
+    if (ans.builder_bits() + 1 < 1024) {
+      ans~store_uint(bits~pop_back(), 1);
+    } else {
+      if (prev_cell.begin_parse().slice_empty?()){
+        prev_cell = ans.end_cell();
+      } else {
+        prev_cell = ans.store_ref(prev_cell).end_cell();
+      }
+      ans = begin_cell();
+    }
+  }
+  if (~ prev_cell.begin_parse().slice_empty?()) {
+    return ans.store_ref(prev_cell).end_cell();
+  } else {
+    return ans.end_cell();
+  }
+}
+
+(tuple) reverse_lisp(tuple t) {
+  tuple new_t = null();
+  while (~ is_null?(t)) { new_t~push_back(t~pop_back()); }
+  return new_t;
+}
+
+(tuple) reverse_tuple(tuple t) {
+  tuple new_t = empty_tuple();
+  int i = t.tlen() - 1;
+  while (i > -1) {
+    new_t~tpush(t.at(i));
+    i -= 1;
+  }
+  return new_t;
+}
+
+(tuple) i2t(int a) {
+  tuple new_t = empty_tuple();
+  while (a > 0) {
+    new_t~tpush(a % 10);
+    a /= 10;
+  }
+  return new_t;
 }
 
 ;; testable
 (cell) find_and_replace(int flag, int value, cell linked_list) method_id {
-  return begin_cell().end_cell();
+  tuple bits = null();
+  slice current_slice = linked_list.begin_parse();
+  while (~ current_slice.slice_empty?()) {
+    while (~ current_slice.slice_data_empty?()) {
+      int a = current_slice~load_uint(1);
+      bits~push_back(a);
+    }
+    if (~ current_slice.slice_empty?()) {
+      current_slice = current_slice~load_ref().begin_parse();
+    }
+  }
+     
+  tuple flag_v = i2t(flag);
+  tuple res_bits = null();
+  tuple value_t = i2t(value).reverse_tuple();
+  while (~ is_null?(bits)) {
+    int bit = bits~pop_back();
+    if (bit == flag_v.at(0)) {
+      tuple copy = bits;
+      int i = 1;
+      int counter = 1;
+      while (i < flag_v.tlen()) {
+          int cbit = copy~pop_back();
+          int fbit = flag_v.at(i);
+          if (cbit == fbit) {
+            counter += 1;
+          }
+          i += 1;
+      }
+      if (counter == flag_v.tlen()) {
+        repeat (flag_v.tlen() - 1) {
+          bits~pop_back();
+        }
+        tuple c = value_t;
+        int i = c.tlen() - 1;
+        while (i > -1) {
+          res_bits~push_back(c.at(i));
+          i -= 1;
+        }
+      } else {
+        res_bits~push_back(bit);
+      }
+    } else {
+      res_bits~push_back(bit);
+    }
+  }
+  cell ans = pack_bits(res_bits);
+  return ans;
 }
 
