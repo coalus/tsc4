@@ -25,30 +25,40 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
 () recv_internal() {
 }
 
-(cell) pack_bits(tuple bits) {
+(cell, tuple) pack_bits(tuple bits) {
+  ;; ~strdump("start pack_bits");
   ;; ~dump(bits);
   builder ans = begin_cell();
-  cell prev_cell = begin_cell().end_cell();
   while (~ is_null?(bits)) {
     int bit = bits~pop_back();
-    if (ans.builder_bits() + 1 < 1024) {
-      ;; if (~ prev_cell.begin_parse().slice_empty?()) {
-      ;;   ;; ~dump(bit);
-      ;; }
+    if (ans.builder_bits() + 1 < 1023) {
+      ;; ~dump(ans.builder_bits());
+      ;; ~strdump("----");
+      ;; ~dump(bit);
+      ;; ~strdump("--^--");
       ans~store_uint(bit, 1);
     } else {
+      bits~push_back(bit);
       ;; ~dump(bits);
-      prev_cell = ans.store_ref(prev_cell).end_cell();
-      ans = begin_cell();
-      ans~store_uint(bit, 1);
+
+      (cell a, bits) = pack_bits(bits);
+      ans = ans.store_ref(a);
+      ;; ~dump(a);
+      ;; ~strdump("loh");
+
+      ;; ~dump(bits);
+      ;; prev_cell = ans.store_ref(prev_cell).end_cell();
+      ;; ans = begin_cell();
+      ;; ans~store_uint(bit, 1);
       ;; ~dump(bit);
     }
   }
-  if (~ prev_cell.begin_parse().slice_empty?()) {
-    return ans.store_ref(prev_cell).end_cell();
-  } else {
-    return ans.end_cell();
-  }
+  return (ans.end_cell(), bits);
+  ;; if (~ prev_cell.begin_parse().slice_empty?()) {
+  ;;   return ans.store_ref(prev_cell).end_cell();
+  ;; } else {
+    ;; return ans.end_cell();
+  ;; }
 }
 
 (tuple) reverse_lisp(tuple t) {
@@ -164,8 +174,8 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
   }
   ;; ~dump(3232);
   
-  cell ans = pack_bits(res_bits);
-  ~dump(res_bits);
+  (cell ans, _) = pack_bits(res_bits);
+  ;; ~dump(res_bits);
   ;; ~dump(res_bits);
   ;; tuple check = null();
   ;; slice current_slice = ans.begin_parse();
