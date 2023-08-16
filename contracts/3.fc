@@ -37,6 +37,7 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
       ;; }
       ans~store_uint(bit, 1);
     } else {
+      ;; ~dump(bits);
       prev_cell = ans.store_ref(prev_cell).end_cell();
       ans = begin_cell();
       ans~store_uint(bit, 1);
@@ -93,19 +94,23 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
   }     
   ;; ~dump(value);
   ;; ~dump(flag);
-  tuple flag_v = i2t(flag).reverse_tuple();
+  tuple flag_v = i2t(flag);
   tuple res_bits = null();
   tuple value_t = i2t(value).reverse_tuple();
   ;; ~dump(flag_v); ;; [0 0 1 0 1]
   ;; ~dump(value_t); ;; [1 0]
   ;; ~dump(bits);
+  ;; ~dump(bits);
   ;; ~dump(bits); ;; [1 0 0 1 0 1]
   ;; ~dump()
   ;; ;; [1 ]
+  ;; [1 1 0 1 1 1]
   while (~ is_null?(bits)) {
     int bit = bits~pop_back();
     bits_len -= 1;
-    if ((bit == flag_v.at(0)) & (bits_len > (flag_v.tlen() - 1))) {
+  
+    if ((bit == flag_v.at(0)) & (bits_len > (flag_v.tlen() - 2))) {
+      ;; ~strdump("at least im her");
       tuple copy = bits;
       int i = 1;
       int counter = 1;
@@ -124,33 +129,43 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
         i += 1;
       };; 1
       ;; 10
+      ;; ~dump(counter);
       if (counter == flag_v.tlen()) {
-        ;; ~dump(1111);
         repeat (flag_v.tlen() - 1) {
           if (~ is_null?(bits)) {
             bits~pop_back();
             bits_len -= 1;
-          } else {
-            ;; ~dump(123);
-          }
+          } 
         }
-        tuple c = value_t;
-        int i = 0;
-        while (i < c.tlen()) {
-          res_bits~push_back(c.at(i));
-          i += 1;
+        ;; ~strdump("kok");
+        ;; ~dump(bits);
+        ;; ~strdump("end");
+
+        int i = value_t.tlen() - 1;
+        while (i > -1) {
+          res_bits~push_back(value_t.at(i));
+          ;; ~dump(res_bits);
+          ;; ~dump(res_bits);
+          i -= 1;
         }
       } else {
         ;; ~strdump("okok1");
         res_bits~push_back(bit);
       }
     } else {
-      ;; ~strdump("okok2");
+      ;; ~strdump("------");
+      ;; ~dump(bits);
+      ;; ~dump(bit);
+      ;; ~dump((bit == flag_v.at(0)));
+      ;; ~dump((bits_len > (flag_v.tlen() - 2)));
+      ;; ~strdump("------");
       res_bits~push_back(bit);
     }
   }
   ;; ~dump(3232);
+  
   cell ans = pack_bits(res_bits);
+  ~dump(res_bits);
   ;; ~dump(res_bits);
   ;; tuple check = null();
   ;; slice current_slice = ans.begin_parse();
