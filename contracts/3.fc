@@ -32,15 +32,15 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
   while (~ is_null?(bits)) {
     int bit = bits~pop_back();
     if (ans.builder_bits() + 1 < 1024) {
+      ;; if (~ prev_cell.begin_parse().slice_empty?()) {
+      ;;   ;; ~dump(bit);
+      ;; }
       ans~store_uint(bit, 1);
     } else {
-      if (prev_cell.begin_parse().slice_empty?()){
-        prev_cell = ans.end_cell();
-      } else {
-        prev_cell = ans.store_ref(prev_cell).end_cell();
-      }
+      prev_cell = ans.store_ref(prev_cell).end_cell();
       ans = begin_cell();
       ans~store_uint(bit, 1);
+      ;; ~dump(bit);
     }
   }
   if (~ prev_cell.begin_parse().slice_empty?()) {
@@ -66,13 +66,14 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
   return new_t;
 }
 
-(tuple) i2t(int a) {
-  tuple new_t = empty_tuple();
-  while (a > 0) {
-    new_t~tpush(a % 10);
-    a /= 10;
+(tuple) i2t(int n) {
+  tuple binary = empty_tuple();
+  while (n) {
+    int bit = n % 2;
+    binary~tpush(bit);
+    n /= 2;
   }
-  return new_t;
+  return binary;
 }
 
 ;; testable
@@ -90,11 +91,14 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
       current_slice = current_slice~load_ref().begin_parse();
     }
   }     
-  tuple flag_v = i2t(flag);
+  ;; ~dump(value);
+  ;; ~dump(flag);
+  tuple flag_v = i2t(flag).reverse_tuple();
   tuple res_bits = null();
-  tuple value_t = i2t(value);
+  tuple value_t = i2t(value).reverse_tuple();
   ;; ~dump(flag_v); ;; [0 0 1 0 1]
   ;; ~dump(value_t); ;; [1 0]
+  ;; ~dump(bits);
   ;; ~dump(bits); ;; [1 0 0 1 0 1]
   ;; ~dump()
   ;; ;; [1 ]
@@ -119,7 +123,7 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
         }
         i += 1;
       };; 1
-       ;; 10
+      ;; 10
       if (counter == flag_v.tlen()) {
         ;; ~dump(1111);
         repeat (flag_v.tlen() - 1) {
@@ -147,6 +151,18 @@ forall X -> (tuple, (X)) pop_back (tuple t) asm "UNCONS";
   }
   ;; ~dump(3232);
   cell ans = pack_bits(res_bits);
+  ;; ~dump(res_bits);
+  ;; tuple check = null();
+  ;; slice current_slice = ans.begin_parse();
+  ;; while (~ current_slice.slice_empty?()) {
+  ;;   while (~ current_slice.slice_data_empty?()) {
+  ;;     check~push_back(current_slice~load_uint(1));
+  ;;   }
+  ;;   if (current_slice.slice_refs()) {
+  ;;     current_slice = current_slice~load_ref().begin_parse();
+  ;;   }
+  ;; }
+  ;; ~dump(check);
   return ans;
 }
 

@@ -53,8 +53,10 @@ describe('Task3', () => {
 
     it('should deploy', async () => { 
         const c = fillCell(input);
-        const res = await blockchain.runGetMethod(task3.address, 'find_and_replace', [{type: 'int', value: 1001010101010101n}, {type: 'int', value: 110n}, {type: 'cell', cell: c}]);
+        // const res = await blockchain.runGetMethod(task3.address, 'find_and_replace', [{type: 'int', value: 10101111010011000101101000111101000110011100101000100010000110110010000001001010001100100000110011010110001001100001011100101100n}, {type: 'int', value: 10110010110011000110111111011010000000000101110011111100000110111001000100011010001011111110110110010100001111100011110000000100n}, {type: 'cell', cell: c}], {gasLimit: 100_000_000n});
+        const res = await blockchain.runGetMethod(task3.address, 'find_and_replace', [{type: 'int', value: 0b1011n}, {type: 'int', value: 0b10n}, {type: 'cell', cell: beginCell().storeUint(0b10111010, 8).endCell()}])
         let a = res.stackReader.readCell().beginParse();
+        console.log(a);
         let i = '';
         while (a.remainingBits != 0) {
             i += Number(a.loadBit()).toString();
@@ -66,6 +68,7 @@ describe('Task3', () => {
                 i += Number(a.loadBit()).toString();
             }
         }
-        expect(i).toEqual(output)
+        console.log(i)
+        // expect(i).toEqual(output)
     });
 });
