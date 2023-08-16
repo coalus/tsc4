@@ -53,7 +53,7 @@ describe('Task3', () => {
 
     it('should deploy', async () => { 
         const c = fillCell(input);
-        const res = await blockchain.runGetMethod(task3.address, 'find_and_replace', [{type: 'int', value: 0b101010101010010101010101010101010101010101010101011010101101011010001001010101001010101000100101011111010101010101011010101010110100000101100010101011111n}, {type: 'int', value: 100n}, {type: 'cell', cell: c}]);
+        const res = await blockchain.runGetMethod(task3.address, 'find_and_replace', [{type: 'int', value: 1001010101010101n}, {type: 'int', value: 110n}, {type: 'cell', cell: c}]);
         let a = res.stackReader.readCell().beginParse();
         let i = '';
         while (a.remainingBits != 0) {
